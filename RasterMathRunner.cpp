@@ -8,9 +8,10 @@
  */
 
 #include "DesktopServices.h"
+#include "DockWindow.h"
 #include "MessageLogResource.h"
 #include "ParseStackBuilder.h"
-#include "PlotWindow.h"
+#include "PlotSetGroup.h"
 #include "ProcessStack.h"
 #include "ProcessStep.h"
 #include "RasterElement.h"
@@ -119,16 +120,30 @@ void RasterMathRunner::displaySignature(Signature* pSig)
 {
    if (mDisplayType != DISPLAY_NONE)
    {
-      PlotWindow* pWindow = dynamic_cast<PlotWindow*>(Service<DesktopServices>()->createWindow("Raster Math Result", PLOT_WINDOW));
-      if (pWindow == NULL)
+      PlotSetGroup* pPlotSetGroup = NULL;
+      DockWindow* pWindow =
+         dynamic_cast<DockWindow*>(Service<DesktopServices>()->createWindow("Raster Math Result", DOCK_WINDOW));
+      if (pWindow != NULL)
       {
-         pWindow = dynamic_cast<PlotWindow*>(Service<DesktopServices>()->getWindow("Raster Math Result", PLOT_WINDOW));
-         if (pWindow == NULL)
+         pPlotSetGroup = Service<DesktopServices>()->createPlotSetGroup();
+         if (pPlotSetGroup != NULL)
          {
-            return;
+            pWindow->setWidget(pPlotSetGroup->getWidget());
          }
       }
-      pWindow->plotData(*pSig, "Raster Math Indices", "Raster Math Values", pSig->getName());
+      else
+      {
+         pWindow = dynamic_cast<DockWindow*>(Service<DesktopServices>()->getWindow("Raster Math Result", DOCK_WINDOW));
+         if (pWindow != NULL)
+         {
+            pPlotSetGroup = dynamic_cast<PlotSetGroup*>(pWindow->getWidget());
+         }
+      }
+
+      if (pPlotSetGroup != NULL)
+      {
+         pPlotSetGroup->plotData(*pSig, "Raster Math Indices", "Raster Math Values", pSig->getName());
+      }
    }
 }
 

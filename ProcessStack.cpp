@@ -28,7 +28,6 @@
 #include <QtCore/QString>
 
 using namespace std;
-using namespace boost;
 
 namespace
 {
@@ -123,7 +122,7 @@ ProcessStack::ProcessStack(const ProcessStack& rhs) :
 {
 }
 
-void ProcessStack::add(shared_ptr<ProcessStep> step)
+void ProcessStack::add(boost::shared_ptr<ProcessStep> step)
 { 
    mSteps.insert(mSteps.end(), step);
 }
@@ -149,13 +148,13 @@ void ProcessStack::addResultStep(const string& baseName, EncodingType type, Proc
    int columnCount = mSteps.back()->columns();
    if (bandCount == 1 && rowCount == 1 && columnCount == 1)
    {
-      add(shared_ptr<ProcessStep>(new ProcessStepNumber("result", ProcessStep::RESULT_NUMBER, 2.0)));
+      add(boost::shared_ptr<ProcessStep>(new ProcessStepNumber("result", ProcessStep::RESULT_NUMBER, 2.0)));
    }
    else if (rowCount == 1 && columnCount == 1)
    {
       mpResultSignature = ModelResource<Signature>(static_cast<Signature*>(Service<ModelServices>()->createElement(
          getAvailableName(baseName, "Signature"), "Signature", NULL)));
-      add(shared_ptr<ProcessStep>(new ProcessStepSignature("ResultSignature", mpResultSignature.get(), bandCount)));
+      add(boost::shared_ptr<ProcessStep>(new ProcessStepSignature("ResultSignature", mpResultSignature.get(), bandCount)));
    }
    else
    {
@@ -167,7 +166,7 @@ void ProcessStack::addResultStep(const string& baseName, EncodingType type, Proc
          getAvailableName(baseName, "RasterElement"), rowCount, columnCount, bandCount, type,
          BIP, location==IN_MEMORY));
       RM_NULLCHK(RasterCorrelator::instance())->setResultElement(mpResultRaster.get());
-      add(shared_ptr<ProcessStep>(new ProcessStepRasterResult(bandCount)));
+      add(boost::shared_ptr<ProcessStep>(new ProcessStepRasterResult(bandCount)));
    }
 }
 
@@ -234,14 +233,14 @@ void ProcessStack::pop_back()
    mSteps.pop_back();
 }
 
-ProcessStep& ProcessStack::previousStep(std::vector<shared_ptr<ProcessStep> >::iterator ppStep, int dist) const
+ProcessStep& ProcessStack::previousStep(std::vector<boost::shared_ptr<ProcessStep> >::iterator ppStep, int dist) const
 {
    return **(ppStep-dist);
 }
 
 void ProcessStack::initializeSteps()
 {
-   for (vector<shared_ptr<ProcessStep> >::iterator ppStep=mSteps.begin();
+   for (vector<boost::shared_ptr<ProcessStep> >::iterator ppStep=mSteps.begin();
       ppStep!=mSteps.end(); ++ppStep)
    {
       RM_NULLCHK(*ppStep)->initialize();
@@ -250,7 +249,7 @@ void ProcessStack::initializeSteps()
 
 void ProcessStack::nextBand()
 {
-   for (vector<shared_ptr<ProcessStep> >::iterator ppStep=mSteps.begin();
+   for (vector<boost::shared_ptr<ProcessStep> >::iterator ppStep=mSteps.begin();
       ppStep!=mSteps.end(); ++ppStep)
    {
       ProcessStep& step = *RM_NULLCHK(*ppStep);
@@ -416,7 +415,7 @@ void ProcessStack::nextBand()
 
 void ProcessStack::nextRow()
 {
-   for (vector<shared_ptr<ProcessStep> >::iterator ppStep=mSteps.begin();
+   for (vector<boost::shared_ptr<ProcessStep> >::iterator ppStep=mSteps.begin();
       ppStep!=mSteps.end(); ++ppStep)
    {
       ProcessStep& step = *RM_NULLCHK(*ppStep);
@@ -471,7 +470,7 @@ void ProcessStack::compute(vector<double>& stack, RasterMathProgress& progress)
    {
       throw RasterMathException("Computing empty process stack");
    }
-   for (vector<shared_ptr<ProcessStep> >::iterator ppStep=mSteps.begin();
+   for (vector<boost::shared_ptr<ProcessStep> >::iterator ppStep=mSteps.begin();
       ppStep!=mSteps.end(); ++ppStep)
    {
       ProcessStep& step = *RM_NULLCHK(*ppStep);
@@ -790,7 +789,7 @@ void ProcessStack::storeErrorValue()
    }
 
    RM_VERIFY(!mSteps.empty());
-   shared_ptr<ProcessStep> pStep = mSteps.back();
+   boost::shared_ptr<ProcessStep> pStep = mSteps.back();
    RM_NULLCHK(pStep);
    if (pStep->type() == ProcessStep::RESULT_RASTER)
    {
@@ -806,7 +805,7 @@ void ProcessStack::storeErrorValue()
 
 void ProcessStack::execute(RasterMathProgress& progress)
 {
-   const std::vector<shared_ptr<ProcessStep> >& mSteps = getSteps();
+   const std::vector<boost::shared_ptr<ProcessStep> >& mSteps = getSteps();
    if (mSteps.empty())
    {
       throw RasterMathException("Formula is empty");
@@ -853,7 +852,7 @@ int64_t ProcessStack::totalWork() const
    int columnCount = mSteps.back()->columns();
 
    int64_t work = static_cast<int64_t>(bandCount) * rowCount * columnCount * mSteps.size();
-   for (vector<shared_ptr<ProcessStep> >::const_iterator ppStep=mSteps.begin();
+   for (vector<boost::shared_ptr<ProcessStep> >::const_iterator ppStep=mSteps.begin();
       ppStep!=mSteps.end(); ++ppStep)
    {
       work += RM_NULLCHK(*ppStep)->oneTimeWork();
@@ -867,10 +866,10 @@ void ProcessStack::optimize()
    // long-term, create a suffix tree to identify repeated substrings
    // for now, identify repeated raster or statistical function steps 
    // via n^2 search :(
-   for (vector<shared_ptr<ProcessStep> >::iterator ppStep1=mSteps.begin();
+   for (vector<boost::shared_ptr<ProcessStep> >::iterator ppStep1=mSteps.begin();
       ppStep1!=mSteps.end(); ++ppStep1)
    {
-      for (vector<shared_ptr<ProcessStep> >::iterator ppStep2=ppStep1+1;
+      for (vector<boost::shared_ptr<ProcessStep> >::iterator ppStep2=ppStep1+1;
          ppStep2!=mSteps.end(); ++ppStep2)
       {
          if (*RM_NULLCHK(*ppStep1) == *RM_NULLCHK(*ppStep2))
@@ -885,7 +884,7 @@ void ProcessStack::optimize()
                type == ProcessStep::BAND_SUM ||
                type == ProcessStep::BAND_STDDEV)
             {
-               *ppStep2 = shared_ptr<ProcessStep>(new ProcessStepReference(**ppStep1));
+               *ppStep2 = boost::shared_ptr<ProcessStep>(new ProcessStepReference(**ppStep1));
             }
          }
       }

@@ -25,18 +25,17 @@
 
 #include <sstream>
 
-using namespace boost;
 using namespace Opticks;
 using namespace std;
 
 namespace
 {
-   Location<int,3> getArgDimensions(const vector<shared_ptr<ProcessStep> >& args, int argCount)
+   Location<int,3> getArgDimensions(const vector<boost::shared_ptr<ProcessStep> >& args, int argCount)
    {
       Location<int,3> dims;
       VERIFYRV(static_cast<int>(args.size()) >= argCount, dims);
       VERIFYRV(argCount >= 1, dims);
-      vector<shared_ptr<ProcessStep> >::const_iterator ppStep=args.end()-1;
+      vector<boost::shared_ptr<ProcessStep> >::const_iterator ppStep=args.end()-1;
       RM_NULLCHK(*ppStep);
       dims.mX = max(dims.mX, (*ppStep)->columns());
       dims.mY = max(dims.mY, (*ppStep)->rows());
@@ -270,7 +269,7 @@ ProcessStepRasterResult::ProcessStepRasterResult(int bandCount) :
 {
 }
 
-ProcessStepFunction::ProcessStepFunction(const std::string& description, StepType type, const vector<shared_ptr<ProcessStep> >& args, int argCount) : 
+ProcessStepFunction::ProcessStepFunction(const std::string& description, StepType type, const vector<boost::shared_ptr<ProcessStep> >& args, int argCount) : 
    ProcessStep(description, type)
 {
    mArgCount = argCount;
