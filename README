@@ -1,3 +1,3 @@
 Put these files into a RasterMath folder under the application/PlugIns/src folder 
-of a full Opticks source check-out. Add the RasterMath.vcproj to the Opticks 
+of a full Opticks source check-out. Add the RasterMath.vcxproj to the Opticks 
 solution. Then, build.

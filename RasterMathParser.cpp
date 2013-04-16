@@ -13,7 +13,6 @@
 #include "RasterMathParser.h"
 
 using namespace std;
-using namespace boost;
 using namespace boost::spirit;
 
 RasterMathParser::RasterMathParser(const string& formula) :

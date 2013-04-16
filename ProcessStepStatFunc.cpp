@@ -14,10 +14,9 @@
 #include <boost/bind.hpp>
 #include <limits>
 
-using namespace boost;
 using namespace std;
 
-ProcessStepStatFunc::ProcessStepStatFunc(const string& description, StepType type, const vector<shared_ptr<ProcessStep> >& args, int argCount) : 
+ProcessStepStatFunc::ProcessStepStatFunc(const string& description, StepType type, const vector<boost::shared_ptr<ProcessStep> >& args, int argCount) : 
    ProcessStepFunction(description, type, args, argCount),
    mSubStackBands(mBands),
    mSubStackRows(mRows),
@@ -37,9 +36,9 @@ ProcessStepStatFunc::ProcessStepStatFunc(const string& description, StepType typ
    initializeAccumulators();
 }
 
-void ProcessStepStatFunc::setSubStack(const vector<shared_ptr<ProcessStep> >& subStack)
+void ProcessStepStatFunc::setSubStack(const vector<boost::shared_ptr<ProcessStep> >& subStack)
 {
-   for(vector<shared_ptr<ProcessStep> >::const_iterator iter=subStack.begin(); iter!=subStack.end(); ++iter)
+   for(vector<boost::shared_ptr<ProcessStep> >::const_iterator iter=subStack.begin(); iter!=subStack.end(); ++iter)
    {
       mSubStack.add(*iter);
    }
@@ -79,9 +78,9 @@ void ProcessStepStatFunc::execute(RasterMathProgress& progress)
 
 int64_t ProcessStepStatFunc::oneTimeWork() const
 {
-   const vector<shared_ptr<ProcessStep> >& steps = mSubStack.getSteps();
+   const vector<boost::shared_ptr<ProcessStep> >& steps = mSubStack.getSteps();
    int64_t work = static_cast<int64_t>(mSubStackBands) * mSubStackRows * mSubStackColumns * steps.size();
-   for (vector<shared_ptr<ProcessStep> >::const_iterator ppStep=steps.begin(); ppStep!=steps.end(); ++ppStep)
+   for (vector<boost::shared_ptr<ProcessStep> >::const_iterator ppStep=steps.begin(); ppStep!=steps.end(); ++ppStep)
    {
       if (ppStep->get() != this)
       {
@@ -101,8 +100,8 @@ bool ProcessStepStatFunc::operator==(const ProcessStep& rhs) const
 
    const ProcessStepStatFunc& statRhs = static_cast<const ProcessStepStatFunc&>(rhs);
 
-   const vector<shared_ptr<ProcessStep> >& steps1 = mSubStack.getSteps();
-   const vector<shared_ptr<ProcessStep> >& steps2 = statRhs.mSubStack.getSteps();
+   const vector<boost::shared_ptr<ProcessStep> >& steps1 = mSubStack.getSteps();
+   const vector<boost::shared_ptr<ProcessStep> >& steps2 = statRhs.mSubStack.getSteps();
 
    if (steps1.size() != steps2.size()) 
    {
